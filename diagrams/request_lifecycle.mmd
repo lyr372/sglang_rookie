@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant C as Client
+    participant S as HTTP Server
+    participant O as OpenAI-compatible Layer
+    participant T as Tokenizer
+    participant Q as Scheduler
+    participant M as Model Executor
+    participant K as KV Cache
+    participant D as Detokenizer
+
+    C->>S: POST /v1/chat/completions
+    S->>O: parse request
+    O->>T: tokenize prompt
+    T->>Q: enqueue tokenized request
+    Q->>M: prefill
+    M->>K: write KV cache
+    Q->>M: decode loop
+    M->>K: read/update KV cache
+    M->>D: token ids
+    D-->>S: text chunks
+    S-->>C: JSON or streaming chunks
